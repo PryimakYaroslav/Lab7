@@ -1,54 +1,39 @@
 package Yarik;
 
-// =====================================================
-// 1. ГОЛОВНИЙ КЛАС
-// =====================================================
-
+// Головний клас: демонстрація роботи транспортних засобів
 public class Task3 {
-
     public static void main(String[] args) {
-        PetrolVehicle car = new PetrolVehicle(
-                "AA1234BB", 20, 60);
+        // Створюємо бензиновий автомобіль та електромобіль
+        PetrolVehicle car = new PetrolVehicle("AA1234BB", 20, 60);
+        ElectricVehicle electricCar = new ElectricVehicle("BC5678EE", 50, 80);
 
-        ElectricVehicle electricCar = new ElectricVehicle(
-                "BC5678EE", 50, 80);
-
-        // Заправка бензинового автомобіля
+        // Кожен транспортний засіб використовує свій спосіб поповнення енергії
         car.refuel(10);
-
-        // Заряджання електромобіля
         electricCar.charge(15);
 
-        // Рух транспортних засобів
+        // Обидва автомобілі підтримують спільну операцію руху
         car.drive(100);
         electricCar.drive(100);
 
-        System.out.println("\nПробіг бензинового автомобіля: "
+        System.out.println("\nПробіг бензинового авто: "
                 + car.getMileageKm() + " км");
-
         System.out.println("Пробіг електромобіля: "
                 + electricCar.getMileageKm() + " км");
     }
 }
 
-
-// =====================================================
-// 2. БАЗОВИЙ КЛАС ТРАНСПОРТНОГО ЗАСОБУ
-// =====================================================
-
+// Базовий абстрактний клас із властивостями та спільною поведінкою
 abstract class Vehicle {
-
+    // Спільні дані для всіх транспортних засобів
     private final String licensePlate;
     private double mileageKm;
 
+    // Конструктор перевіряє номерний знак
     public Vehicle(String licensePlate) {
-        if (licensePlate == null || licensePlate.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Номерний знак обов'язковий.");
-        }
+        if (licensePlate == null || licensePlate.isBlank())
+            throw new IllegalArgumentException("Номерний знак обов'язковий.");
 
         this.licensePlate = licensePlate;
-        this.mileageKm = 0;
     }
 
     public String getLicensePlate() {
@@ -59,217 +44,144 @@ abstract class Vehicle {
         return mileageKm;
     }
 
-    protected void addMileage(double distanceKm) {
-        if (!Double.isFinite(distanceKm) || distanceKm <= 0) {
-            throw new IllegalArgumentException(
-                    "Відстань повинна бути додатною.");
-        }
+    // Захищений метод для оновлення пробігу
+    protected void addMileage(double distance) {
+        if (!Double.isFinite(distance) || distance <= 0)
+            throw new IllegalArgumentException("Некоректна відстань.");
 
-        mileageKm += distanceKm;
+        mileageKm += distance;
     }
 
-    public abstract void drive(double distanceKm);
+    // Кожен тип транспортного засобу реалізує рух по-своєму
+    public abstract void drive(double distance);
 }
 
-
-// =====================================================
-// 3. ІНТЕРФЕЙС ТРАНСПОРТУ, ЩО ЗАПРАВЛЯЄТЬСЯ
-// =====================================================
-
+// Окремий інтерфейс для транспортних засобів, які заправляються паливом
 interface Refuelable {
-
-    double getFuelLevelLiters();
-
-    double getTankCapacityLiters();
-
     void refuel(double liters);
+    double getFuelLevelLiters();
+    double getTankCapacityLiters();
 }
 
-
-// =====================================================
-// 4. ІНТЕРФЕЙС ТРАНСПОРТУ, ЩО ЗАРЯДЖАЄТЬСЯ
-// =====================================================
-
+// Окремий інтерфейс для транспортних засобів, які заряджаються
 interface Chargeable {
-
-    double getBatteryLevelKWh();
-
-    double getBatteryCapacityKWh();
-
     void charge(double kWh);
+    double getBatteryLevelKWh();
+    double getBatteryCapacityKWh();
 }
 
-
-// =====================================================
-// 5. БЕНЗИНОВИЙ АВТОМОБІЛЬ
-// =====================================================
-
+// Бензиновий автомобіль: успадковує спільні властивості Vehicle
+// та реалізує лише інтерфейс заправлення Refuelable
 class PetrolVehicle extends Vehicle implements Refuelable {
-
-    private double fuelLevelLiters;
-    private final double tankCapacityLiters;
-
+    private double fuel;
+    private final double tankCapacity;
     private static final double FUEL_PER_KM = 0.08;
 
-    public PetrolVehicle(String licensePlate,
-                         double fuelLevelLiters,
-                         double tankCapacityLiters) {
-        super(licensePlate);
+    // Конструктор перевіряє початковий рівень палива та місткість бака
+    public PetrolVehicle(String plate, double fuel, double capacity) {
+        super(plate);
+        if (!Double.isFinite(capacity) || capacity <= 0
+                || !Double.isFinite(fuel) || fuel < 0 || fuel > capacity)
+            throw new IllegalArgumentException("Некоректні параметри бака.");
 
-        if (!Double.isFinite(tankCapacityLiters)
-                || tankCapacityLiters <= 0) {
-            throw new IllegalArgumentException(
-                    "Місткість бака повинна бути додатною.");
-        }
-
-        if (!Double.isFinite(fuelLevelLiters)
-                || fuelLevelLiters < 0
-                || fuelLevelLiters > tankCapacityLiters) {
-            throw new IllegalArgumentException(
-                    "Некоректний рівень палива.");
-        }
-
-        this.fuelLevelLiters = fuelLevelLiters;
-        this.tankCapacityLiters = tankCapacityLiters;
+        this.fuel = fuel;
+        this.tankCapacity = capacity;
     }
 
     @Override
     public double getFuelLevelLiters() {
-        return fuelLevelLiters;
+        return fuel;
     }
 
     @Override
     public double getTankCapacityLiters() {
-        return tankCapacityLiters;
+        return tankCapacity;
     }
 
+    // Додає паливо, якщо не перевищено місткість бака
     @Override
     public void refuel(double liters) {
-        if (!Double.isFinite(liters) || liters <= 0) {
-            throw new IllegalArgumentException(
-                    "Кількість палива повинна бути додатною.");
-        }
+        if (!Double.isFinite(liters) || liters <= 0)
+            throw new IllegalArgumentException("Некоректна кількість палива.");
+        if (fuel + liters > tankCapacity)
+            throw new IllegalStateException("Перевищено місткість бака.");
 
-        if (fuelLevelLiters + liters > tankCapacityLiters) {
-            throw new IllegalStateException(
-                    "Перевищено місткість паливного бака!");
-        }
-
-        fuelLevelLiters += liters;
-
-        System.out.println("Автомобіль " + getLicensePlate()
-                + " заправлено на " + liters
-                + " л. Залишок: " + fuelLevelLiters + " л.");
+        fuel += liters;
+        System.out.println("Авто заправлено на " + liters
+                + " л. Залишок: " + fuel + " л.");
     }
 
+    // Рух витрачає паливо та збільшує загальний пробіг
     @Override
-    public void drive(double distanceKm) {
-        if (!Double.isFinite(distanceKm) || distanceKm <= 0) {
-            throw new IllegalArgumentException(
-                    "Відстань повинна бути додатною.");
-        }
+    public void drive(double distance) {
+        if (!Double.isFinite(distance) || distance <= 0)
+            throw new IllegalArgumentException("Некоректна відстань.");
 
-        double fuelConsumed = distanceKm * FUEL_PER_KM;
+        double consumed = distance * FUEL_PER_KM;
+        if (consumed > fuel)
+            throw new IllegalStateException("Недостатньо палива.");
 
-        if (fuelConsumed > fuelLevelLiters) {
-            throw new IllegalStateException(
-                    "Недостатньо палива для поїздки!");
-        }
-
-        fuelLevelLiters -= fuelConsumed;
-        addMileage(distanceKm);
-
-        System.out.println("Автомобіль " + getLicensePlate()
-                + " проїхав " + distanceKm
-                + " км. Залишок палива: "
-                + fuelLevelLiters + " л.");
+        fuel -= consumed;
+        addMileage(distance);
+        System.out.println("Авто проїхало " + distance
+                + " км. Палива залишилось: " + fuel + " л.");
     }
 }
 
-
-// =====================================================
-// 6. ЕЛЕКТРОМОБІЛЬ
-// =====================================================
-
+// Електромобіль: успадковує Vehicle та реалізує інтерфейс Chargeable
 class ElectricVehicle extends Vehicle implements Chargeable {
-
-    private double batteryLevelKWh;
-    private final double batteryCapacityKWh;
-
+    private double battery;
+    private final double batteryCapacity;
     private static final double ENERGY_PER_KM = 0.18;
 
-    public ElectricVehicle(String licensePlate,
-                           double batteryLevelKWh,
-                           double batteryCapacityKWh) {
-        super(licensePlate);
+    // Конструктор перевіряє початковий заряд і місткість батареї
+    public ElectricVehicle(String plate, double battery, double capacity) {
+        super(plate);
+        if (!Double.isFinite(capacity) || capacity <= 0
+                || !Double.isFinite(battery)
+                || battery < 0 || battery > capacity)
+            throw new IllegalArgumentException("Некоректні параметри батареї.");
 
-        if (!Double.isFinite(batteryCapacityKWh)
-                || batteryCapacityKWh <= 0) {
-            throw new IllegalArgumentException(
-                    "Місткість батареї повинна бути додатною.");
-        }
-
-        if (!Double.isFinite(batteryLevelKWh)
-                || batteryLevelKWh < 0
-                || batteryLevelKWh > batteryCapacityKWh) {
-            throw new IllegalArgumentException(
-                    "Некоректний рівень заряду батареї.");
-        }
-
-        this.batteryLevelKWh = batteryLevelKWh;
-        this.batteryCapacityKWh = batteryCapacityKWh;
+        this.battery = battery;
+        this.batteryCapacity = capacity;
     }
 
     @Override
     public double getBatteryLevelKWh() {
-        return batteryLevelKWh;
+        return battery;
     }
 
     @Override
     public double getBatteryCapacityKWh() {
-        return batteryCapacityKWh;
+        return batteryCapacity;
     }
 
+    // Збільшує заряд, якщо не перевищено місткість батареї
     @Override
     public void charge(double kWh) {
-        if (!Double.isFinite(kWh) || kWh <= 0) {
-            throw new IllegalArgumentException(
-                    "Кількість енергії повинна бути додатною.");
-        }
+        if (!Double.isFinite(kWh) || kWh <= 0)
+            throw new IllegalArgumentException("Некоректна кількість енергії.");
+        if (battery + kWh > batteryCapacity)
+            throw new IllegalStateException("Перевищено місткість батареї.");
 
-        if (batteryLevelKWh + kWh > batteryCapacityKWh) {
-            throw new IllegalStateException(
-                    "Перевищено місткість батареї!");
-        }
-
-        batteryLevelKWh += kWh;
-
-        System.out.println("Електромобіль " + getLicensePlate()
-                + " заряджено на " + kWh
-                + " кВт·год. Заряд: "
-                + batteryLevelKWh + " кВт·год.");
+        battery += kWh;
+        System.out.println("Електромобіль заряджено на " + kWh
+                + " кВт·год. Заряд: " + battery + " кВт·год.");
     }
 
+    // Рух витрачає заряд батареї та збільшує загальний пробіг
     @Override
-    public void drive(double distanceKm) {
-        if (!Double.isFinite(distanceKm) || distanceKm <= 0) {
-            throw new IllegalArgumentException(
-                    "Відстань повинна бути додатною.");
-        }
+    public void drive(double distance) {
+        if (!Double.isFinite(distance) || distance <= 0)
+            throw new IllegalArgumentException("Некоректна відстань.");
 
-        double energyConsumed = distanceKm * ENERGY_PER_KM;
+        double consumed = distance * ENERGY_PER_KM;
+        if (consumed > battery)
+            throw new IllegalStateException("Недостатньо заряду.");
 
-        if (energyConsumed > batteryLevelKWh) {
-            throw new IllegalStateException(
-                    "Недостатньо заряду для поїздки!");
-        }
-
-        batteryLevelKWh -= energyConsumed;
-        addMileage(distanceKm);
-
-        System.out.println("Електромобіль " + getLicensePlate()
-                + " проїхав " + distanceKm
-                + " км. Залишок заряду: "
-                + batteryLevelKWh + " кВт·год.");
+        battery -= consumed;
+        addMileage(distance);
+        System.out.println("Електромобіль проїхав " + distance
+                + " км. Заряд залишився: " + battery + " кВт·год.");
     }
 }
