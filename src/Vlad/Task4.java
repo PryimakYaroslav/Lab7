@@ -2,9 +2,8 @@ package Vlad;
 
 import java.math.BigDecimal;
 
-// Завдання 4: Interface Segregation Principle (ISP)
-// Замість одного великого інтерфейсу створюємо
-// декілька маленьких інтерфейсів за ролями.
+// (ISP) принцип розділення інтерфейсів
+// Замість одног велик інтерфейсу створ декілька маленьких інтерфейс за ролями.
 
 public class Task4 {
 
@@ -51,7 +50,7 @@ public class Task4 {
             }
         }
     }
-
+//1 вид
     // Онлайн-каса підтримує лише картки та перекази
     static class OnlineWebCheckoutTerminal
             implements CardPayment, BankTransferPayment {
@@ -78,7 +77,7 @@ public class Task4 {
             );
         }
     }
-
+//2 вид
     // POS-термінал підтримує картки, NFC та друк чека
     static class PosCardReader
             implements CardPayment, NfcPayment, PaperReceiptPrinter {

@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
-// Завдання 2: Open/Closed Principle (OCP)
-// Замість великого if-else використовуємо патерн Strategy.
+// (OCP) принцип відкритості/закритості.
+// Замість великого if-else використовуємо патерн Strategy
 
 public class Task2 {
 
@@ -121,13 +121,13 @@ public class Task2 {
         }
     }
 
-    // Основний калькулятор — не залежить від типу страхування
+    // Основний калькулятор не залежить від типу страхування
     static class InsurancePremiumCalculator {
         public BigDecimal calculatePremium(
                 PolicyHolder holder,
                 PremiumStrategy strategy
         ) {
-            BigDecimal premium = strategy.calculate(holder)
+            BigDecimal premium = strategy.calculate(holder)//викликає потрібн стратегію страхув
                     .setScale(2, RoundingMode.HALF_UP);
 
             if (premium.signum() < 0) {
@@ -154,7 +154,7 @@ public class Task2 {
 
         InsurancePremiumCalculator calculator =
                 new InsurancePremiumCalculator();
-
+        //стратегії
         List<PremiumStrategy> strategies = List.of(
                 new AutoStrategy(),
                 new HealthStrategy(),
