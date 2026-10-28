@@ -126,7 +126,7 @@ class LoanValidator {
     }
 }
 
-// Розраховує штраф або бонусні бали
+// Розраховує штраф
 class FineCalculator {
     private static final BigDecimal DAILY_FINE = new BigDecimal("15.00");
     private static final int ON_TIME_BONUS = 10;
@@ -193,7 +193,7 @@ class CatalogRepository {
     }
 }
 
-// Імітує надсилання електронного листа
+// Імітуєо надсилання електроннго листа
 class EmailNotificationService {
     public void send(String address, String notice, FineResult result) {
         String subject = result.getOverdueDays() > 0

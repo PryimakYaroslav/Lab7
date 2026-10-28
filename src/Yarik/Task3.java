@@ -3,15 +3,12 @@ package Yarik;
 // Головний клас: демонстрація роботи транспортних засобів
 public class Task3 {
     public static void main(String[] args) {
-        // Створюємо бензиновий автомобіль та електромобіль
         PetrolVehicle car = new PetrolVehicle("AA1234BB", 20, 60);
         ElectricVehicle electricCar = new ElectricVehicle("BC5678EE", 50, 80);
 
-        // Кожен транспортний засіб використовує свій спосіб поповнення енергії
         car.refuel(10);
         electricCar.charge(15);
 
-        // Обидва автомобілі підтримують спільну операцію руху
         car.drive(100);
         electricCar.drive(100);
 
@@ -24,11 +21,9 @@ public class Task3 {
 
 // Базовий абстрактний клас із властивостями та спільною поведінкою
 abstract class Vehicle {
-    // Спільні дані для всіх транспортних засобів
     private final String licensePlate;
     private double mileageKm;
 
-    // Конструктор перевіряє номерний знак
     public Vehicle(String licensePlate) {
         if (licensePlate == null || licensePlate.isBlank())
             throw new IllegalArgumentException("Номерний знак обов'язковий.");
@@ -44,15 +39,12 @@ abstract class Vehicle {
         return mileageKm;
     }
 
-    // Захищений метод для оновлення пробігу
     protected void addMileage(double distance) {
         if (!Double.isFinite(distance) || distance <= 0)
             throw new IllegalArgumentException("Некоректна відстань.");
 
         mileageKm += distance;
     }
-
-    // Кожен тип транспортного засобу реалізує рух по-своєму
     public abstract void drive(double distance);
 }
 
@@ -110,8 +102,6 @@ class PetrolVehicle extends Vehicle implements Refuelable {
         System.out.println("Авто заправлено на " + liters
                 + " л. Залишок: " + fuel + " л.");
     }
-
-    // Рух витрачає паливо та збільшує загальний пробіг
     @Override
     public void drive(double distance) {
         if (!Double.isFinite(distance) || distance <= 0)
@@ -156,7 +146,6 @@ class ElectricVehicle extends Vehicle implements Chargeable {
         return batteryCapacity;
     }
 
-    // Збільшує заряд, якщо не перевищено місткість батареї
     @Override
     public void charge(double kWh) {
         if (!Double.isFinite(kWh) || kWh <= 0)
@@ -169,7 +158,6 @@ class ElectricVehicle extends Vehicle implements Chargeable {
                 + " кВт·год. Заряд: " + battery + " кВт·год.");
     }
 
-    // Рух витрачає заряд батареї та збільшує загальний пробіг
     @Override
     public void drive(double distance) {
         if (!Double.isFinite(distance) || distance <= 0)
